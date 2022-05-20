@@ -1,0 +1,10 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+./OLD/
+./Analysis/Figures/
+./Analysis/ModelOutput/
+./Analysis/ModelOutputTBV/
+./Analysis/Results/
+./Results/
