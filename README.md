@@ -1,13 +1,6 @@
----
-title: A method for partitioning trends in genetic mean and variance to understand
-  breeding practices
-author: "Oliveira, T. P., Obšteter, J., Pocrnic, I., Heslot, N., Gorjanc, G."
-date: "2022-06-29"
-output:
-  html_document:
-    keep_md: yes
----
+# A method for partitioning trends in genetic mean and variance to understand breeding practices
 
+**Authors:** *Oliveira, T. P.*, Obšteter, J., Pocrnic, I., Heslot, N., Gorjanc, G.
 
 
 ## Code Structure
