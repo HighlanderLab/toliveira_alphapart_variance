@@ -9,6 +9,11 @@
 #=======================================================================
 library(tidyverse)
 
+# to define the quantile of the standard normal distribution
+alpha <- 0.999
+
+# Minimum population covered
+round((1-1/qnorm(alpha)^2)*100,2)
 
 ########################################################################
 # Phenotype Selection
@@ -36,20 +41,23 @@ data %>%
   group_by(generation, path) %>%
   summarise(
     diffMean = mean(diff),
-    diffLower = diffMean - qnorm(0.99) * sd(diff),
-    diffUpper = diffMean + qnorm(0.99) * sd(diff)
+    diffLower = diffMean - qnorm(alpha) * sd(diff),
+    diffUpper = diffMean + qnorm(alpha) * sd(diff)
   ) %>%
+  dplyr::mutate(
+    path = factor(path, levels = levels(SMean$SummaryEBV$path)[4:1])
+  ) %>%  
   ggplot(aes(y = diffMean, x = generation)) +
   facet_wrap(~path) +
   geom_ribbon(aes(ymin = diffLower, ymax = diffUpper), alpha = 0.2) +
   geom_line() +
   ylab("Difference between estimated and true partition for genetic mean") +
   xlab("Generation")+
-  ylim(-3.5, 1.5) +
+  ylim(-4, 2.0) +
   ggtitle("Medium accuracy") +
   geom_hline(yintercept = 0, linetype = 2, alpha = 0.4, colour = "blue") +
   geom_vline(xintercept = 0, linetype = 2, alpha = 0.2) +
-  theme_bw(base_size = 14)
+  theme_bw(base_size = 16)
 ggsave("./Analysis/Supplementary/30_Replicates/Figures/diffMeanPheno.pdf", 
        width = 7, height = 7)
 
@@ -76,20 +84,23 @@ data %>%
   group_by(generation, path) %>%
   summarise(
     diffMean = mean(diff),
-    diffLower = diffMean - qnorm(0.99) * sd(diff),
-    diffUpper = diffMean + qnorm(0.99) * sd(diff)
+    diffLower = diffMean - qnorm(alpha) * sd(diff),
+    diffUpper = diffMean + qnorm(alpha) * sd(diff)
+  ) %>%
+  dplyr::mutate(
+    path = factor(path, levels = levels(SMean$SummaryEBV$path)[4:1])
   ) %>%
   ggplot(aes(y = diffMean, x = generation)) +
   facet_wrap(~path) +
   geom_ribbon(aes(ymin = diffLower, ymax = diffUpper), alpha = 0.2) +
   geom_line() +
-  ylim(-1.1, 0.6) +
+  ylim(-1.2, 0.7) +
   ggtitle("Medium accuracy") +
   ylab("Difference between estimated and true partition for MST") +
   xlab("Generation")+
   geom_hline(yintercept = 0, linetype = 2, alpha = 0.4, colour = "blue") +
   geom_vline(xintercept = 0, linetype = 2, alpha = 0.2) +
-  theme_bw(base_size = 14)
+  theme_bw(base_size = 16)
 ggsave("./Analysis/Supplementary/30_Replicates/Figures/diffMeanMSTPheno.pdf", 
        width = 7, height = 7)
 
@@ -116,8 +127,11 @@ data %>%
   group_by(generation, path) %>%
   summarise(
     diffMean = mean(diff),
-    diffLower = diffMean - qnorm(0.99) * sd(diff),
-    diffUpper = diffMean + qnorm(0.99) * sd(diff)
+    diffLower = diffMean - qnorm(alpha) * sd(diff),
+    diffUpper = diffMean + qnorm(alpha) * sd(diff)
+  ) %>%
+  dplyr::mutate(
+    path = factor(path, levels = levels(SVar$SummaryEBV$path)[c(7,6,4,1,5,3,2)])
   ) %>%
   ggplot(aes(y = diffMean, x = generation)) +
   facet_wrap(~path) +
@@ -126,11 +140,11 @@ data %>%
   geom_line() +
   ylab("Difference between estimated and true partition for genetic variance") +
   xlab("Generation")+
-  ylim(-0.25, 0.25) +
+  ylim(-0.3, 0.3) +
   ggtitle("Medium accuracy") +
   geom_vline(xintercept = 0, linetype = 2, alpha = 0.2) +
   geom_hline(yintercept = 0, linetype = 2, alpha = 0.4, colour = "blue") +
-  theme_bw(base_size = 14)
+  theme_bw(base_size = 16)
 ggsave("./Analysis/Supplementary/30_Replicates/Figures/diffVarPheno.pdf", 
        width = 7, height = 7)
 
@@ -160,8 +174,11 @@ data %>%
   group_by(generation, path) %>%
   summarise(
     diffMean = mean(diff),
-    diffLower = diffMean - qnorm(0.99) * sd(diff),
-    diffUpper = diffMean + qnorm(0.99) * sd(diff)
+    diffLower = diffMean - qnorm(alpha) * sd(diff),
+    diffUpper = diffMean + qnorm(alpha) * sd(diff)
+  ) %>%
+  dplyr::mutate(
+    path = factor(path, levels = levels(SMean$mstEBV$path)[4:1])
   ) %>%
   ggplot(aes(y = diffMean, x = generation)) +
   facet_wrap(~path) +
@@ -172,8 +189,8 @@ data %>%
   geom_hline(yintercept = 0, linetype = 2, alpha = 0.4, colour = "blue") +
   ggtitle("High accuracy") +
   geom_vline(xintercept = 0, linetype = 2, alpha = 0.2) +  
-  ylim(-3.5, 1.5) +
-  theme_bw(base_size = 14)
+  ylim(-4, 2.0) +
+  theme_bw(base_size = 16)
 ggsave("./Analysis/Supplementary/30_Replicates/Figures/diffMeanTBV.pdf", 
        width = 7, height = 7)
 
@@ -200,8 +217,11 @@ data %>%
   group_by(generation, path) %>%
   summarise(
     diffMean = mean(diff),
-    diffLower = diffMean - qnorm(0.99) * sd(diff),
-    diffUpper = diffMean + qnorm(0.99) * sd(diff)
+    diffLower = diffMean - qnorm(alpha) * sd(diff),
+    diffUpper = diffMean + qnorm(alpha) * sd(diff)
+  ) %>%
+  dplyr::mutate(
+    path = factor(path, levels = levels(SMean$mstEBV$path)[4:1])
   ) %>%
   ggplot(aes(y = diffMean, x = generation)) +
   facet_wrap(~path) +
@@ -212,8 +232,8 @@ data %>%
   geom_hline(yintercept = 0, linetype = 2, alpha = 0.4, colour = "blue") +
   ggtitle("High accuracy") +
   geom_vline(xintercept = 0, linetype = 2, alpha = 0.2) +
-  ylim(-1.1, 0.6) +
-  theme_bw(base_size = 14)
+  ylim(-1.2, 0.7) +
+  theme_bw(base_size = 16)
 ggsave("./Analysis/Supplementary/30_Replicates/Figures/diffMeanMSTTBV.pdf", 
        width = 7, height = 7)
 
@@ -240,8 +260,11 @@ data %>%
   group_by(generation, path) %>%
   summarise(
     diffMean = mean(diff),
-    diffLower = diffMean - qnorm(0.99) * sd(diff),
-    diffUpper = diffMean + qnorm(0.99) * sd(diff)
+    diffLower = diffMean - qnorm(alpha) * sd(diff),
+    diffUpper = diffMean + qnorm(alpha) * sd(diff)
+  ) %>%
+  dplyr::mutate(
+    path = factor(path, levels = levels(SVar$SummaryEBV$path)[c(7,6,4,1,5,3,2)])
   ) %>%
   ggplot(aes(y = diffMean, x = generation)) +
   facet_wrap(~path) +
@@ -254,7 +277,7 @@ data %>%
   xlab("Generation")+
   geom_hline(yintercept = 0, linetype = 2, alpha = 0.4, colour = "blue") +
   geom_vline(xintercept = 0, linetype = 2, alpha = 0.2) +
-  ylim(-0.25, 0.25) +
-  theme_bw(base_size = 14)
+  ylim(-0.3, 0.3) +
+  theme_bw(base_size = 16)
 ggsave("./Analysis/Supplementary/30_Replicates/Figures/diffVarTBV.pdf", 
        width = 7, height = 7)

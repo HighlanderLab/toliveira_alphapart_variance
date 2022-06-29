@@ -29,3 +29,5 @@ for(i in seq_len(30)){
   rm(list = ls()[!(ls() %in% c('i','r'))])
   gc()
 }
+
+source("./Analysis/Supplementary/30_Replicates/AlphaPart_Results.R")

@@ -20,7 +20,18 @@ dataEBV <- wrapperData(dataPath, pedPath, ebvPath)
 #=======================================================================
 # test
 #=======================================================================
-summMean <- dataEBV$data %>%
+tmp <- as.matrix(dataEBV$data[dataEBV$data$father=="0" & 
+                                dataEBV$data$mother=="0", -c(1:6,8:11)])
+y <- as.matrix(dataEBV$data[, -c(1:6,8:11)])
+f <- function(x) {
+  sd(x, na.rm = TRUE)
+}
+scale <- apply(tmp, 2L, f)
+y <- y - colMeans(tmp)[1]
+y <- y/scale[1]
+y <- cbind(y, dataEBV$data[,c(6,9)])
+
+summMean <- y %>%
   group_by(generation, path) %>%
   summarise(meanTBV = mean(tbv),
             across(s1:s1500, ~ mean(.x, na.rm = TRUE)))
@@ -28,31 +39,34 @@ summMean$meanEBV <- rowMeans(summMean[,dataEBV$colNames])
 
 # Concordance
 ccc <- CCC(summMean$meanTBV, summMean$meanEBV)
-ccc$rho.c
+round(ccc$rho.c,3)
 
 # Pearson Cor.
-ccc$rho.c[1]/ccc$C.b
+round(ccc$rho.c[1]/ccc$C.b,3)
 
 # C_b
-ccc$C.b
+round(ccc$C.b,3)
 
 #plot
 p1 <- summMean %>%
   dplyr::mutate(path = recode(path, 
                               `F`="F", 
                               `M:Non-Selected`= "M(NS)",
-                              `M:Selected` = "M(S)")) %>%
-  ggplot(aes(x = meanTBV, y = meanEBV)) +
+                              `M:Selected` = "M(S)"))  %>%
+  dplyr::mutate(generation = generation-20) %>%
+  ggplot(aes(x = meanTBV, y = meanEBV, colour = generation)) +
   facet_wrap(~path)+
   geom_point() +
-  xlab("Average TBV per generation") +
-  ylab("Average EBV per generation") +
+  xlab("True genetic mean per generation") +
+  ylab("Estimated genetic mean per generation") +
   geom_abline(intercept = 0, slope = 1) +
   ggtitle("High accuracy") +
-  theme_bw()
+  labs(colour = "Generation:") +
+  theme_bw(base_size = 12)+
+  theme(legend.position = "top")
 
 
-summVar <- dataEBV$data %>%
+summVar <- y %>%
   group_by(generation, path) %>%
   summarise(varTBV = var(tbv),
             across(s1:s1500, ~ var(.x, na.rm = TRUE)))
@@ -60,32 +74,34 @@ summVar$varEBV <- rowMeans(summVar[,dataEBV$colNames])
 
 # Concordance
 ccc <- CCC(summVar$varTBV, summVar$varEBV)
-ccc$rho.c
+round(ccc$rho.c,2)
 
 # Pearson Cor.
-ccc$rho.c[1]/ccc$C.b
+round(ccc$rho.c[1]/ccc$C.b,2)
 
 # C_b
-ccc$C.b
+round(ccc$C.b,2)
 
 # plot
-p2 <- summVar %>%
+p2 <- summVar  %>%
+  dplyr::mutate(generation = generation-20) %>%
   dplyr::mutate(path = recode(path, 
                               `F`="F", 
                               `M:Non-Selected`= "M(NS)",
                               `M:Selected` = "M(S)")) %>%
-  ggplot(aes(x = varTBV, y = varEBV)) +
+  ggplot(aes(x = varTBV, y = varEBV, colour = generation)) +
   facet_wrap(~path)+
   geom_point() +
-  xlab("Average TBV per generation") +
-  ylab("Average EBV per generation") +
+  xlab("True genetic variance per generation") +
+  ylab("Estimated genetic variance per generation") +
   geom_abline(intercept = 0, slope = 1) +
-  ggtitle("High accuracy") +
-  theme_bw()
+  labs(colour = "Generation:") +
+  theme_bw(base_size = 12)+
+  theme(legend.position = "none")
 
 p1/p2
 
-ggsave("./Analysis/Figures/EBV_TBV_ScenarioTBV.pdf", width = 9, height = 6)
+ggsave("./Analysis/Figures/EBV_TBV_ScenarioTBV.pdf", width = 9, height = 9)
 #=======================================================================
 # AlphaPart
 #=======================================================================
@@ -100,6 +116,7 @@ m2 <- AlphaPart(dataEBV$data, colId = "ind", colFid = "father",
                 scaleEBV = list(center = TRUE, scale = TRUE))
 saveRDS(m1, "./Analysis/Results/AlphaPart_EBV_ValidationTBV.rds")
 saveRDS(m2, "./Analysis/Results/AlphaPart_TBV_ValidationTBV.rds")
+
 
 m1 <- readRDS("./Analysis/Results/AlphaPart_EBV_ValidationTBV.rds")
 m2 <- readRDS("./Analysis/Results/AlphaPart_TBV_ValidationTBV.rds")
@@ -160,7 +177,7 @@ m2$tbv %>%
                  bins = 40, position="identity", alpha=0.5,
                  color="black", ) +
   scale_fill_manual(values= c("red", "blue", "gray")) +
-  xlab("Genetic gain") +
+  xlab("Density plot of breeding value partitions") +
   ggtitle("High accuracy") +
   theme_bw(base_size = 14) +  
   xlim(-2.5, 17) +
@@ -193,16 +210,19 @@ save(SVar, file = "./Analysis/Results/SVar_TBV_ValidationTBV.rds")
 #=======================================================================
 # Mean
 g1 <- SMean$SummaryEBV %>%
+  dplyr::mutate(
+    path = factor(path, levels = levels(SMean$SummaryEBV$path)[4:1])
+  ) %>%
   ggplot(aes(y = Median, x = generation),
          size = 0.1) +
   facet_wrap(~path)+
   geom_ribbon(aes(ymin = Lower, ymax = Upper, fill = path), alpha = 0.2) + 
-  scale_fill_manual(values= c("red", "#9597a1", "blue", "black")) +
+  scale_fill_manual(values= c("black", "blue", "#9597a1", "red")) +
   geom_line(aes(colour = path), alpha = 0.8) +
   geom_line(data = SMean$SummaryTrue, 
             aes(y = Median, x = generation, colour = path), 
             linetype = 2, alpha = 0.8) +
-  scale_color_manual(values= c("red", "#9597a1", "blue", "black")) +
+  scale_color_manual(values= c("black", "blue", "#9597a1", "red")) +
   geom_vline(xintercept = 0, linetype = 2, alpha = 0.3) +
   ylab("Genetic Mean") +
   xlab("Generation") +
@@ -214,19 +234,22 @@ g1 <- SMean$SummaryEBV %>%
 g1
 
 ggsave("./Analysis/Figures/gibbsGenMeanValidationTBV.pdf", 
-       plot = g1, width = 10, height = 7)
+       plot = g1, width = 6, height = 6)
 
 g1 <- SMean$mstEBV %>%
+  dplyr::mutate(
+    path = factor(path, levels = levels(SMean$mstEBV$path)[4:1])
+  ) %>%
   ggplot(aes(y = Median, x = generation),
          size = 0.1) +
   facet_wrap(~path)+
   geom_ribbon(aes(ymin = Lower, ymax = Upper, fill = path), alpha = 0.2) + 
-  scale_fill_manual(values= c("red", "#9597a1", "blue", "black")) +
+  scale_fill_manual(values= c("black", "blue", "#9597a1", "red")) +
   geom_line(aes(colour = path), alpha = 0.8) +
   geom_line(data = SMean$mstTrue, 
             aes(y = mstTrue, x = generation, colour = path), 
             linetype = 2, alpha = 0.8) +
-  scale_color_manual(values= c("red", "#9597a1", "blue", "black")) +
+  scale_color_manual(values= c("black", "blue", "#9597a1", "red")) +
   geom_vline(xintercept = 0, linetype = 2, alpha = 0.3) +
   ylab("Contribution of Mendelian Sampling Term to Genetic Mean") +
   xlab("Generation") +
@@ -237,19 +260,22 @@ g1 <- SMean$mstEBV %>%
   theme(legend.position = "none")
 g1
 ggsave("./Analysis/Figures/gibbsGenMeanValidationTBVMST.pdf", 
-       plot = g1, width = 10, height = 7)
+       plot = g1, width = 6, height = 6)
 
 
 # Variance
 g2 <- SVar$SummaryEBV %>%
+  dplyr::mutate(
+    path = factor(path, levels = levels(SVar$SummaryEBV$path)[c(7,6,4,1,5,3,2)])
+  ) %>%
   ggplot(aes(y = Median, x = generation),
          size = 0.1) +
   facet_wrap(~path)+
   geom_ribbon(aes(ymin = Lower, ymax = Upper, fill = path), alpha = 0.2) + 
-  scale_fill_manual(values= c("red", "#823175","#4b7000ff","#9597a1", "#c4852b", "blue", "black")) +
+  scale_fill_manual(values= c("black", "blue","#9597a1", "red", "#c4852b","#4b7000ff","#823175")) +
   geom_line(aes(colour = path), alpha = 0.8) +
   geom_line(data = SVar$SummaryTrue, aes(y = Median, x = generation, colour = path), linetype = 2, alpha = 0.8) +
-  scale_color_manual(values= c("red", "#823175","#4b7000ff","#9597a1", "#c4852b", "blue", "black")) +
+  scale_color_manual(values= c("black", "blue","#9597a1", "red", "#c4852b","#4b7000ff","#823175")) +
   geom_vline(xintercept = 0, linetype = 2, alpha = 0.3) +
   ylab("Genetic Variance") +
   xlab("Generation") +
@@ -260,5 +286,5 @@ g2 <- SVar$SummaryEBV %>%
   theme(legend.position = "none")
 g2
 ggsave("./Analysis/Figures/gibbsGenVarValidationTBV.pdf", 
-       plot = g2, width = 10, height = 7)
+       plot = g2, width = 8, height = 8)
 

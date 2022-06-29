@@ -16,6 +16,7 @@ library(AlphaPart)
 library(tidyverse)
 library(tidyr)
 library(patchwork)
+library(ggridges)
 #=======================================================================
 # Reading and organizing Scenario 1
 #=======================================================================
@@ -60,6 +61,67 @@ S1 <- summary(m1, by = "generation")
 S1Var <- summary(m1, by = "generation", FUN = var, cov = TRUE)
 
 #-----------------------------------------------------------------------
+# Groups
+#-----------------------------------------------------------------------
+m1$tbv %>%
+  ggplot(aes(y = as.factor(generation), x= tbv_F)) +
+  geom_density_ridges(
+    aes(fill = "F - Non-Selected", linetype = "F - Non-Selected"),
+    alpha = .4, point_alpha = 1, rel_min_height = 0.01
+  ) +
+  geom_density_ridges(
+    aes(y = as.factor(generation), x= `tbv_M:Non-Selected`, fill = "M - Non-Selected",
+        linetype = "M - Non-Selected"),
+    alpha = .4, point_alpha = 1, rel_min_height = 0.01
+  ) +
+  geom_density_ridges(
+    aes(y = as.factor(generation), x= `tbv_M:Selected`, fill = "M - Selected",
+        linetype = "M - Selected"),
+    alpha = .4, point_alpha = 1, rel_min_height = 0.01
+  ) +
+  geom_density_ridges(
+    aes(y = as.factor(generation), x= `tbv`,
+        fill = "Sum", linetype = "Sum"),
+    alpha = .4, point_alpha = 1, rel_min_height = 0.01
+  ) +
+  ylab("Generation") +
+  xlab("Density plot of breeding value partitions") +
+  labs(fill = "Path:", linetype = "Path:") +
+  theme_bw(base_size = 20) +
+  xlim(c(-5,25))+
+  ggtitle("Medium accuracy") +
+  theme(
+    legend.position = "top"
+  ) 
+ggsave("./Analysis/Figures/Contribution_pheno.pdf",width = 11, height = 11)
+
+#-----------------------------------------------------------------------
+# MST and PA
+#-----------------------------------------------------------------------
+m1$tbv %>%
+  ggplot(aes(y = as.factor(generation), x= tbv_pa)) +
+  geom_density_ridges(
+    aes(fill = type, linetype = "PA"),
+    alpha = .4, point_alpha = 1, rel_min_height = 0.01
+  ) +
+  geom_density_ridges(
+    aes(y = as.factor(generation), x= tbv_w, fill = type,
+        linetype = "MST"),
+    alpha = .4, point_alpha = 1, rel_min_height = 0.01
+  ) +
+  facet_wrap(~sex) +
+  ylab("Year") +
+  xlab("Parent Average") +
+  ggtitle("Medium accuracy") +
+  labs(fill = "Selection paths:", linetype = "Variable:") +
+  xlim(-3,23) +
+  theme_bw(base_size = 16) +
+  theme(
+    legend.position = "top"
+  ) 
+ggsave("./Analysis/Figures/MST_pheno.pdf",width = 9, height = 9)
+
+#-----------------------------------------------------------------------
 # Correlation
 #-----------------------------------------------------------------------
 m1$tbv$group <- m1$tbv$sex:m1$tbv$type
@@ -77,7 +139,7 @@ m1$tbv %>%
                      sec.axis = sec_axis(~., name = 'Mendelian Sampling')) +
   xlab("Generation") +
   theme_bw(base_size = 14) +
-  theme(legend.position = "none")
+  theme(legend.position = "top")
 #ggsave("./Analysis/Figures/correlation_pheno.pdf",width = 8, height = 6)
 
 #=======================================================================
@@ -123,6 +185,72 @@ S2 <- summary(m1, by = "generation")
 
 S2Var <- summary(m1, by = "generation", FUN = var, cov = TRUE)
 
+
+#-----------------------------------------------------------------------
+# Groups
+#-----------------------------------------------------------------------
+m1$tbv %>%
+  ggplot(aes(y = as.factor(generation), x= tbv_F)) +
+  geom_density_ridges(
+    aes(fill = "F - Non-Selected", linetype = "F - Non-Selected"),
+    alpha = .4, point_alpha = 1, rel_min_height = 0.01
+  ) +
+  geom_density_ridges(
+    aes(y = as.factor(generation), x= `tbv_M:Non-Selected`, fill = "M - Non-Selected",
+        linetype = "M - Non-Selected"),
+    alpha = .4, point_alpha = 1, rel_min_height = 0.01
+  ) +
+  geom_density_ridges(
+    aes(y = as.factor(generation), x= `tbv_M:Selected`, fill = "M - Selected",
+        linetype = "M - Selected"),
+    alpha = .4, point_alpha = 1, rel_min_height = 0.01
+  ) +
+  geom_density_ridges(
+    aes(y = as.factor(generation), x= `tbv`,
+        fill = "Sum", linetype = "Sum"),
+    alpha = .4, point_alpha = 1, rel_min_height = 0.01
+  ) +
+  ylab("Generation") +
+  xlab("Density plot of breeding value partitions") +
+  labs(fill = "Path:", linetype = "Path:") +
+  ggtitle("High accuracy") +
+  theme_bw(base_size = 20) +
+  xlim(c(-5,25))+
+  theme(
+    legend.position = "top"
+  ) 
+ggsave("./Analysis/Figures/Contribution_tbv.pdf",width = 11, height = 11)
+
+
+#-----------------------------------------------------------------------
+# MST and PA
+#-----------------------------------------------------------------------
+m1$tbv %>%
+  ggplot(aes(y = as.factor(generation), x= tbv_pa)) +
+  geom_density_ridges(
+    aes(fill = type, linetype = "PA"),
+    alpha = .4, point_alpha = 1, rel_min_height = 0.01
+  ) +
+  geom_density_ridges(
+    aes(y = as.factor(generation), x= tbv_w, fill = type,
+        linetype = "MST"),
+    alpha = .4, point_alpha = 1, rel_min_height = 0.01
+  ) +
+  facet_wrap(~sex) +
+  ylab("Year") +
+  xlab("Parent Average") +
+  ggtitle("High accuracy") +
+  labs(fill = "Selection paths:", linetype = "Variable:") +
+  xlim(-3,23) +
+  theme_bw(base_size = 16) +
+  theme(
+    legend.position = "top"
+  )
+ggsave("./Analysis/Figures/MST_tbv.pdf",width = 9, height = 9)
+
+#-----------------------------------------------------------------------
+# M(S) contribution and MST
+#-----------------------------------------------------------------------
 m1$tbv %>%
   group_by(generation) %>%
   filter(type == "Selected") %>%
@@ -136,11 +264,22 @@ m1$tbv %>%
                      sec.axis = sec_axis(~., name = 'Mendelian Sampling')) +
   xlab("Generation") +
   theme_bw(base_size = 14) +
-  theme(legend.position = "none")
+  theme(legend.position = "top")
 
 #ggsave("./Analysis/Figures/escorrelation_tbv.pdf",width = 8, height = 6)
 
-
+m1$tbv %>%
+  filter(generation >0) %>%
+  ggplot(aes(y = tbv_F, x = `tbv_M:Selected`, colour = path)) +
+  geom_point() +
+  facet_wrap(~generation) +
+  ylab("Contribution from Female") +
+  xlab("Contribution from Male") +
+  theme_bw() +
+  theme(
+    legend.position = "top"
+  )
+ggsave("./Analysis/Figures/negative_cor_generation20.pdf",width = 15, height = 12)
 ########################################################################
 # Sex
 ########################################################################
@@ -164,21 +303,46 @@ g1 <- Summ %>%
   ggplot(aes(y = Sum, x = generation),
          size = 0.1) +
   facet_wrap(~Selection)+
-  geom_line(aes(colour = "Sum")) +
-  geom_line(aes(y = `F`, x = generation, colour = "F"),
-            alpha = 0.8) +
-  geom_line(aes(y = `M`, x = generation, colour = "M"),
-            alpha = 0.8) +
-  scale_color_manual(values= c("red", "blue", "black")) +
+  scale_linetype_manual(
+    values = c("solid", "longdash", "dashed", "dotted"))+
+  geom_line() +
+  geom_line(aes(y = `F`, x = generation),
+            colour = "red", alpha = 0.8) +
+  geom_line(aes(y = `M`, x = generation),
+            colour = "blue", alpha = 0.8) +
   geom_vline(xintercept = 0, linetype = 2, alpha = 0.3) +
   ylab("Genetic Mean") +
   xlab("Generation") +
-  labs(colour = "Path:") +
+  xlim(-20,23)+
   theme_bw(base_size = 18) + 
   theme(legend.position = "none")
-g2 <- g1 + theme(legend.position = "none")
-g2
+g2 <- g1 + theme(legend.position = "top") +
+  guides(
+    color = guide_legend(override.aes = list(linetype = c(0, 1),
+                                             shape = c(16, NA),
+                                             color = "black")))
+textplot <- tibble(
+  Sum = rep(c(mean(Summ[Summ$generation==20 & Summ$Selection=="Medium accuracy",][,3]),
+              mean(Summ[Summ$generation==20 & Summ$Selection=="High accuracy",][,3]),
+              mean(Summ[Summ$generation==20 & Summ$Selection=="Medium accuracy",][,5]),
+              mean(Summ[Summ$generation==20 & Summ$Selection=="High accuracy",][,5]),
+              mean(Summ[Summ$generation==20 & Summ$Selection=="Medium accuracy",][,4]),
+              mean(Summ[Summ$generation==20 & Summ$Selection=="High accuracy",][,4])),2),
+  Selection = as.factor(rep(rep(c("Medium accuracy","High accuracy"),3),2)),
+  Scenario = c(rep("IS", 6), rep("WFS", 6)),
+  generation = 22,
+  label = rep(c(rep("Sum",2), rep("M",2), rep("F",2)),2),
+  colour = rep(c(rep("black",2), rep("blue",2), rep("red",2)),2),
+  size = 3.6
+)
 
+g3 <- g2 + geom_text(
+  data = textplot,
+  label = textplot$label,
+  colour = textplot$colour,
+  size = textplot$size
+)
+g3
 #-----------------------------------------------------------------------
 # Plot Both - Var
 #-----------------------------------------------------------------------
@@ -197,24 +361,51 @@ rm(tmp1,tmp2)
 g4 <- Summ %>%
   ggplot(aes(y = Sum, x = generation)) +
   facet_wrap(~Selection)+
-  geom_line(aes(colour = "Sum")) +
-  geom_line(aes(y = `F`, x = generation, colour = "F"),
-            alpha = 0.8) +
-  geom_line(aes(y = `FM`, x = generation, colour = "F:M"),
-            size = 0.2, alpha = 0.8) +
-  scale_color_manual(values= c("red", "orange", "blue", "black")) +
-  geom_line(aes(y = `M`, x = generation, colour = "M"),
-            alpha = 0.8) +
+  geom_line() +
+  geom_line(aes(y = `F`, x = generation),
+            colour = "red", alpha = 0.8) +
+  geom_line(aes(y = `FM`, x = generation),
+            colour = "#4b7000ff", size = 0.2, alpha = 0.6) +
+  geom_line(aes(y = `M`, x = generation),
+            colour = "blue", alpha = 0.8) +
   geom_vline(xintercept = 0, linetype = 2, alpha = 0.3) +
   ylab("Genetic Variance") +
-  labs(colour = "Path:") +
+  xlim(-20,23)+
   xlab("Generation") +
   theme_bw(base_size = 18)
-g5 <- g4 + theme(legend.position = "none") 
+g5 <- g4 + theme(legend.position = "top") +
+  guides(
+    color = guide_legend(override.aes = list(linetype = c(0, 1),
+                                             shape = c(16, NA),
+                                             color = "black")))
 
-g5
+textplot <- tibble(
+  Sum = rep(c(mean(Summ[Summ$generation==20 & Summ$Selection=="Medium accuracy",][,3]),
+              mean(Summ[Summ$generation==20 & Summ$Selection=="High accuracy",][,3]),
+              mean(Summ[Summ$generation==20 & Summ$Selection=="Medium accuracy",][,5]),
+              mean(Summ[Summ$generation==20 & Summ$Selection=="High accuracy",][,5]) - 0.04,
+              mean(Summ[Summ$generation==20 & Summ$Selection=="Medium accuracy",][,4]),
+              mean(Summ[Summ$generation==20 & Summ$Selection=="High accuracy",][,4])+0.02,
+              mean(Summ[Summ$generation==20 & Summ$Selection=="Medium accuracy",][,6]),
+              mean(Summ[Summ$generation==20 & Summ$Selection=="High accuracy",][,6])),2),
+  Selection = as.factor(rep(rep(c("Medium accuracy","High accuracy"),4),2)),
+  Scenario = c(rep("IS", 8), rep("WFS", 8)),
+  generation = 22,
+  label = rep(c(rep("Sum",2), rep("M",2), rep("F",2), rep("F:M",2)),2),
+  colour = rep(c(rep("black",2), rep("blue",2), rep("red",2), 
+                 rep("#4b7000ff",2)),2),
+  size = 3.6
+)
 
-g2/g5
+g6 <- g5 + geom_text(
+  data = textplot,
+  label = textplot$label,
+  colour = textplot$colour,
+  size = textplot$size
+)
+g6
+
+g3/g6
 ggsave("./Analysis/Figures/AlphaPartSexP.pdf",width = 8, height = 8)
 
 ########################################################################
@@ -239,23 +430,53 @@ g1 <- Summ %>%
   ggplot(aes(y = Sum, x = generation),
          size = 0.1) +
   facet_wrap(~Selection)+
-  geom_line(aes(colour = "Sum")) +
-  geom_line(aes(y = `F`, x = generation, colour = "F"),
-            alpha = 0.8) +
-  geom_line(aes(y = `M:Selected`, x = generation, colour = "M(S)"),
-            alpha = 0.8) +
-  geom_line(aes(y = `M:Non-Selected`, x = generation, colour = "M(N)"),
-            alpha = 0.8) +
-  scale_color_manual(values= c("red", "#9597a1", "blue", "black")) +
+  scale_linetype_manual(
+    values = c("solid", "longdash", "dashed", "dotted"))+
+  geom_line() +
+  geom_line(aes(y = `F`, x = generation),
+            colour = "red", alpha = 0.8) +
+  geom_line(aes(y = `M:Selected`, x = generation),
+            colour = "blue", alpha = 0.8) +
+  geom_line(aes(y = `M:Non-Selected`, x = generation),
+            colour = "#9597a1", alpha = 0.8) +
   geom_vline(xintercept = 0, linetype = 2, alpha = 0.3) +
   ylab("Genetic Mean") +
   xlab("Generation") +
-  labs(colour = "Path:") +
+  xlim(-20,32)+
   theme_bw(base_size = 18) + 
   theme(legend.position = "none")
 
-g2 <- g1 + theme(legend.position = "none") 
+g2 <- g1 + theme(legend.position = "top") +
+  guides(
+    color = guide_legend(override.aes = list(linetype = c(0, 1),
+                                             shape = c(16, NA),
+                                             color = "black")))
 g2
+textplot <- tibble(
+  Sum = rep(c(mean(Summ[Summ$generation==20 & Summ$Selection=="Medium accuracy",][,3]),
+              mean(Summ[Summ$generation==20 & Summ$Selection=="High accuracy",][,3]),
+              mean(Summ[Summ$generation==20 & Summ$Selection=="Medium accuracy",][,5]),
+              mean(Summ[Summ$generation==20 & Summ$Selection=="High accuracy",][,5]),
+              mean(Summ[Summ$generation==20 & Summ$Selection=="Medium accuracy",][,4]),
+              mean(Summ[Summ$generation==20 & Summ$Selection=="High accuracy",][,4]),
+              mean(Summ[Summ$generation==20 & Summ$Selection=="Medium accuracy",][,6]),
+              mean(Summ[Summ$generation==20 & Summ$Selection=="High accuracy",][,6])),2),
+  Selection = as.factor(rep(rep(c("Medium accuracy","High accuracy"),4),2)),
+  Scenario = c(rep("IS", 8), rep("WFS", 8)),
+  generation = 23.5,
+  label = rep(c(rep("Sum",2), rep("M(N)",2), rep("F",2), rep("M(S)",2)),2),
+  colour = rep(c(rep("black",2), rep("#9597a1",2), rep("red",2), 
+                 rep("blue",2)),2),
+  size = 3.6
+)
+
+g3 <- g2 + geom_text(
+  data = textplot,
+  label = textplot$label,
+  colour = textplot$colour,
+  size = textplot$size
+)
+g3
 
 #ggsave("Figur./Analysis/Figures/esAlphaPartMean.pdf",width = 14, height = 7)
 #-----------------------------------------------------------------------
@@ -284,7 +505,7 @@ Summ %>%
   geom_line() +
   geom_hline(yintercept = 0, linetype = 2, alpha = 0.2)+
   geom_vline(xintercept = 0, linetype = 2, alpha = 0.2) +
-  ylab("Correlation between the contribution of F and M(S) to genetic variance") +
+  ylab("Correlation between the F and M(S) breeding values partition") +
   xlab("Generation") +
   theme_bw(base_size = 14)
 ggsave("./Analysis/Figures/AlphaPartCor.pdf",width = 8, height = 7)
@@ -292,29 +513,63 @@ ggsave("./Analysis/Figures/AlphaPartCor.pdf",width = 8, height = 7)
 g4 <- Summ %>%
   ggplot(aes(y = Sum, x = generation)) +
   facet_wrap(~Selection)+
-  geom_line(aes(colour = "Sum")) +
-  geom_line(aes(y = `F`, x = generation, colour = "F"),
-            alpha = 0.8) +
-  geom_line(aes(y = `FM:Selected`, x = generation, colour = "F:M(S)"),
-            size =0.5, alpha =0.8) +
-  geom_line(aes(y = `FM:Non-Selected`, x = generation, colour = "F:M(N)"),
-            size =0.5, alpha =0.6) +
-  geom_line(aes(y = `M:Non-SelectedM:Selected`, x = generation, 
-                colour = "M(S):M(N)"),
-            size =0.5, alpha =0.6) +
-  geom_line(aes(y = `M:Selected`, x = generation, colour = "M(S)"),
-            alpha = 0.8) +
-  geom_line(aes(y = `M:Non-Selected`, x = generation, colour = "M(N)"),
-            size =0.5, alpha =0.8) +
-  scale_color_manual(values= c("red", "#823175","#4b7000ff", "#9597a1", "blue", "#c4852b", "black")) +
+  geom_line() +
+  geom_line(aes(y = `F`, x = generation),
+            colour = "red", alpha = 0.8) +
+  geom_line(aes(y = `FM:Selected`, x = generation),
+            colour = "#4b7000ff", size =0.5, alpha =0.8) +
+  geom_line(aes(y = `FM:Non-Selected`, x = generation),
+            colour = "#823175", size =0.5, alpha =0.6) +
+  geom_line(aes(y = `M:Non-SelectedM:Selected`, x = generation),
+            colour = "#c4852b", size =0.5, alpha =0.6) +
+  geom_line(aes(y = `M:Selected`, x = generation),
+            colour = "blue", alpha = 0.8) +
+  geom_line(aes(y = `M:Non-Selected`, x = generation),
+            colour = "#9597a1", size =0.5, alpha =0.8) +
   geom_vline(xintercept = 0, linetype = 2, alpha = 0.3) +
   ylab("Genetic Variance") +
+  xlim(-20,32)+
   xlab("Generation") +
-  labs(colour = "Path:") +
   theme_bw(base_size = 18)
-g5 <- g4 + theme(legend.position = "none") 
-g5
+g5 <- g4 + theme(legend.position = "top") +
+  guides(
+    color = guide_legend(override.aes = list(linetype = c(0, 1),
+                                             shape = c(16, NA),
+                                             color = "black")))
 
-g2/g5
+textplot <- tibble(
+  Sum = rep(c(mean(Summ[Summ$generation==20 & Summ$Selection=="Medium accuracy",][,3]),  #Sum
+              mean(Summ[Summ$generation==20 & Summ$Selection=="High accuracy",][,3]),
+              mean(Summ[Summ$generation==20 & Summ$Selection=="Medium accuracy",][,5]), # M(MS)
+              mean(Summ[Summ$generation==20 & Summ$Selection=="High accuracy",][,5]+0.05),
+              mean(Summ[Summ$generation==20 & Summ$Selection=="Medium accuracy",][,6]-0.03), # M(S)
+              mean(Summ[Summ$generation==20 & Summ$Selection=="High accuracy",][,6]-0.01),
+              mean(Summ[Summ$generation==20 & Summ$Selection=="Medium accuracy",][,4]+0.02), # F
+              mean(Summ[Summ$generation==20 & Summ$Selection=="High accuracy",][,4]+0.02),
+              mean(Summ[Summ$generation==20 & Summ$Selection=="Medium accuracy",][,7]+0.07), # F:M(N)
+              mean(Summ[Summ$generation==20 & Summ$Selection=="High accuracy",][,7]-0.07),
+              mean(Summ[Summ$generation==20 & Summ$Selection=="Medium accuracy",][,8]-0.04), # F:M(S)
+              mean(Summ[Summ$generation==20 & Summ$Selection=="High accuracy",][,8]-0.05),
+              mean(Summ[Summ$generation==20 & Summ$Selection=="Medium accuracy",][,9]), #M(N):M(S)
+              mean(Summ[Summ$generation==20 & Summ$Selection=="High accuracy",][,9])),2),
+  Selection = as.factor(rep(rep(c("Medium accuracy","High accuracy"),7),2)),
+  Scenario = c(rep("IS", 7*2), rep("WFS", 7*2)),
+  generation = 27,
+  label = rep(c(rep("Sum",2),     rep("M(N)",2),  rep("M(S)",2), rep("F",2), 
+                rep("F:M(N)",2), rep("F:M(S)",2), rep("M(S):M(N)",2)),2),
+  colour = rep(c(rep("black",2), rep("#9597a1",2), rep("blue",2), 
+                 rep("red",2),   rep("#823175",2), rep("#4b7000ff",2), 
+                 rep("#c4852b",2)),2),
+  size = 3.6
+)
+
+g6 <- g5 + geom_text(
+  data = textplot,
+  label = textplot$label,
+  colour = textplot$colour,
+  size = textplot$size
+)
+g6
+
+g3/g6
 ggsave("./Analysis/Figures/AlphaPartSexSel.pdf",width = 8, height = 8)
-

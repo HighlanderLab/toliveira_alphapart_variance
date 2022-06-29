@@ -166,9 +166,40 @@ g1 <- APMeanSexCI %>%
   geom_vline(xintercept = 0, linetype = 2, alpha = 0.3) +
   ylab("Genetic Mean") +
   xlab("Generation") +
-  labs(fill = "Path:", colour  = "Path:" ) +
+  xlim(-20,23)+
+  labs(fill = "Selection path:", colour  = "Selection path:" ) +
   theme_bw(base_size = 15) + 
-  theme(legend.position = "top")
+  theme(legend.position = "none")
+
+g2 <- g1 + theme(legend.position = "none") +
+  guides(
+    color = guide_legend(override.aes = list(linetype = c(0, 1),
+                                             shape = c(16, NA),
+                                             color = "black")))
+
+textplot <- tibble(
+  Est = c(APMeanSexCI[APMeanSexCI$generation==20 & APMeanSexCI$Scenario=="Medium accuracy" & APMeanSexCI$type=="Sum",]$Est,
+          APMeanSexCI[APMeanSexCI$generation==20 & APMeanSexCI$Scenario=="High accuracy" & APMeanSexCI$type=="Sum",]$Est,
+          APMeanSexCI[APMeanSexCI$generation==20 & APMeanSexCI$Scenario=="Medium accuracy"  & APMeanSexCI$type=="F",]$Est,
+          APMeanSexCI[APMeanSexCI$generation==20 & APMeanSexCI$Scenario=="High accuracy" & APMeanSexCI$type=="F",]$Est,
+          APMeanSexCI[APMeanSexCI$generation==20 & APMeanSexCI$Scenario=="Medium accuracy"& APMeanSexCI$type=="M",]$Est,
+          APMeanSexCI[APMeanSexCI$generation==20 & APMeanSexCI$Scenario=="High accuracy" & APMeanSexCI$type=="M",]$Est),
+  Scenario = as.factor(rep(c("Medium accuracy","High accuracy"),3)),
+  generation = 22,
+  label = c(rep("Sum",2), rep("F",2), rep("M",2)),
+  type = c(rep("Sum",2), rep("F",2), rep("M",2)),
+  colour = c(rep("black",2), rep("red",2), rep("blue",2)),
+  size = 3.6
+)
+
+g3 <- g2 + geom_text(
+  data = textplot,
+  label = textplot$label,
+  colour = textplot$colour,
+  size = textplot$size
+)
+g3
+
 
 #=======================================================================
 # Path: Sex - Variance
@@ -205,15 +236,43 @@ g4 <- APVarSexCI %>%
   ylab("Genetic Variance") +
   xlab("Generation") +
   xlim(-20,23)+
-  labs(fill = "Path:", colour  = "Path:" ) +
+  labs(fill = "Selection path:", colour  = "Selection path:" ) +
   theme_bw(base_size = 15) + 
-  theme(legend.position = "top")
+  theme(legend.position = "none")
 
-g1/g4
+g5 <- g4 + theme(legend.position = "none") +
+  guides(
+    color = guide_legend(override.aes = list(linetype = c(0, 1),
+                                             shape = c(16, NA),
+                                             color = "black")))
 
-ggsave("./Analysis/Figures/AlphaPartSex30Reps_legend.pdf",width = 8, height = 8)
-(g1+ theme(legend.position = "none")) / 
-  (g4 + theme(legend.position = "none"))
+textplot <- tibble(
+  Est = c(APVarSexCI[APVarSexCI$generation==20 & APVarSexCI$Scenario=="Medium accuracy" & APVarSexCI$type=="Sum",]$Est,
+          APVarSexCI[APVarSexCI$generation==20 & APVarSexCI$Scenario=="High accuracy" & APVarSexCI$type=="Sum",]$Est,
+          APVarSexCI[APVarSexCI$generation==20 & APVarSexCI$Scenario=="Medium accuracy"  & APVarSexCI$type=="F",]$Est,
+          APVarSexCI[APVarSexCI$generation==20 & APVarSexCI$Scenario=="High accuracy" & APVarSexCI$type=="F",]$Est,
+          APVarSexCI[APVarSexCI$generation==20 & APVarSexCI$Scenario=="Medium accuracy"  & APVarSexCI$type=="F:M",]$Est,
+          APVarSexCI[APVarSexCI$generation==20 & APVarSexCI$Scenario=="High accuracy" & APVarSexCI$type=="F:M",]$Est,
+          APVarSexCI[APVarSexCI$generation==20 & APVarSexCI$Scenario=="Medium accuracy"& APVarSexCI$type=="M",]$Est,
+          APVarSexCI[APVarSexCI$generation==20 & APVarSexCI$Scenario=="High accuracy" & APVarSexCI$type=="M",]$Est),
+  Scenario = as.factor(rep(c("Medium accuracy","High accuracy"),4)),
+  generation = 22,
+  label = c(rep("Sum",2), rep("F",2), rep("F:M",2), rep("M",2)),
+  type = label,
+  colour = c(rep("black",2), rep("red",2), rep("#4b7000ff",2), rep("blue",2)),
+  size = 3.6
+)
+
+g6 <- g5 + geom_text(
+  data = textplot,
+  label = textplot$label,
+  colour = textplot$colour,
+  size = textplot$size
+)
+g6
+
+g3/g6
+
 ggsave("./Analysis/Figures/AlphaPartSex30Reps.pdf",width = 8, height = 8)
 
 #=======================================================================
@@ -251,9 +310,39 @@ g1 <- APMeanCI %>%
   ylab("Genetic Mean") +
   xlab("Generation") +
   xlim(-20,26.5)+
-  labs(fill = "Path:", colour  = "Path:" ) +
+  labs(fill = "Selection path:", colour  = "Selection path:" ) +
   theme_bw(base_size = 15) + 
-  theme(legend.position = "top")
+  theme(legend.position = "none")
+
+g2 <- g1 + theme(legend.position = "none") +
+  guides(
+    color = guide_legend(override.aes = list(linetype = c(0, 1),
+                                             shape = c(16, NA),
+                                             color = "black")))
+
+textplot <- tibble(
+  Est = c(APMeanCI[APMeanCI$generation==20 & APMeanCI$Scenario=="Medium accuracy" & APMeanCI$type=="Sum",]$Est,
+          APMeanCI[APMeanCI$generation==20 & APMeanCI$Scenario=="High accuracy" & APMeanCI$type=="Sum",]$Est,
+          APMeanCI[APMeanCI$generation==20 & APMeanCI$Scenario=="Medium accuracy"  & APMeanCI$type=="F",]$Est,
+          APMeanCI[APMeanCI$generation==20 & APMeanCI$Scenario=="High accuracy" & APMeanCI$type=="F",]$Est,
+          APMeanCI[APMeanCI$generation==20 & APMeanCI$Scenario=="Medium accuracy"& APMeanCI$type=="M(N)",]$Est,
+          APMeanCI[APMeanCI$generation==20 & APMeanCI$Scenario=="High accuracy" & APMeanCI$type=="M(N)",]$Est,
+          APMeanCI[APMeanCI$generation==20 & APMeanCI$Scenario=="Medium accuracy"& APMeanCI$type=="M(S)",]$Est,
+          APMeanCI[APMeanCI$generation==20 & APMeanCI$Scenario=="High accuracy" & APMeanCI$type=="M(S)",]$Est),
+  Scenario = as.factor(rep(c("Medium accuracy","High accuracy"),4)),
+  generation = 24.5,
+  type = c(rep("Sum",2), rep("F",2), rep("M(N)",2), rep("M(S)",2)),
+  colour = c(rep("black",2), rep("red",2), rep("#9597a1",2), rep("blue",2)),
+  size = 3.6
+)
+
+g3 <- g2 + geom_text(
+  data = textplot,
+  label = textplot$type,
+  colour = textplot$colour,
+  size = textplot$size
+)
+g3
 
 #=======================================================================
 # Path: Sex/Selection - Var
@@ -293,16 +382,49 @@ g4 <- APVarCI %>%
   ylab("Genetic Variance") +
   xlab("Generation") +
   xlim(-20,26.5)+
-  labs(fill = "Path:", colour  = "Path:" ) +
+  labs(fill = "Selection path:", colour  = "Selection path:" ) +
   theme_bw(base_size = 15) + 
-  theme(legend.position = "top")
+  theme(legend.position = "none")
 
-g1/g4
+g5 <- g4 + theme(legend.position = "none") +
+  guides(
+    color = guide_legend(override.aes = list(linetype = c(0, 1),
+                                             shape = c(16, NA),
+                                             color = "black")))
 
-ggsave("./Analysis/Figures/AlphaPartSexSel30Reps_legend.pdf",width = 8, height = 8)
+textplot <- tibble(
+  Est = c(APVarCI[APVarCI$generation==20 & APVarCI$Scenario=="Medium accuracy" & APVarCI$type=="Sum",]$Est,
+          APVarCI[APVarCI$generation==20 & APVarCI$Scenario=="High accuracy" & APVarCI$type=="Sum",]$Est,
+          APVarCI[APVarCI$generation==20 & APVarCI$Scenario=="Medium accuracy"  & APVarCI$type=="F",]$Est,
+          APVarCI[APVarCI$generation==20 & APVarCI$Scenario=="High accuracy" & APVarCI$type=="F",]$Est,
+          APVarCI[APVarCI$generation==20 & APVarCI$Scenario=="Medium accuracy"& APVarCI$type=="M(N)",]$Est,
+          APVarCI[APVarCI$generation==20 & APVarCI$Scenario=="High accuracy" & APVarCI$type=="M(N)",]$Est,
+          APVarCI[APVarCI$generation==20 & APVarCI$Scenario=="Medium accuracy"& APVarCI$type=="M(S)",]$Est,
+          APVarCI[APVarCI$generation==20 & APVarCI$Scenario=="High accuracy" & APVarCI$type=="M(S)",]$Est,
+          APVarCI[APVarCI$generation==20 & APVarCI$Scenario=="Medium accuracy"& APVarCI$type=="F:M(N)",]$Est,
+          APVarCI[APVarCI$generation==20 & APVarCI$Scenario=="High accuracy" & APVarCI$type=="F:M(N)",]$Est,
+          APVarCI[APVarCI$generation==20 & APVarCI$Scenario=="Medium accuracy"& APVarCI$type=="F:M(S)",]$Est,
+          APVarCI[APVarCI$generation==20 & APVarCI$Scenario=="High accuracy" & APVarCI$type=="F:M(S)",]$Est,
+          APVarCI[APVarCI$generation==20 & APVarCI$Scenario=="Medium accuracy"& APVarCI$type=="M(N):M(S)",]$Est,
+          APVarCI[APVarCI$generation==20 & APVarCI$Scenario=="High accuracy" & APVarCI$type=="M(N):M(S)",]$Est),
+  Scenario = as.factor(rep(c("Medium accuracy","High accuracy"),7)),
+  generation = 24.5,
+  type = c(rep("Sum",2),  rep("F",2), rep("M(N)",2),  rep("M(S)",2), 
+           rep("F:M(N)",2), rep("F:M(S)",2), rep("M(N):M(S)",2)),
+  colour = c(rep("black",2), rep("red",2), rep("#9597a1",2), rep("blue",2), 
+             rep("#823175",2), rep("#4b7000ff",2), rep("#c4852b",2)),
+  size = 3.6
+)
 
-(g1+ theme(legend.position = "none")) / 
-  (g4 + theme(legend.position = "none"))
+g6 <- g5 + geom_text(
+  data = textplot,
+  label = textplot$type,
+  colour = textplot$colour,
+  size = textplot$size
+)
+g6
+
+g3/g6
 ggsave("./Analysis/Figures/AlphaPartSexSel30Reps.pdf",width = 8, height = 8)
 
 
@@ -335,7 +457,7 @@ APVarCI %>%
   ylab(expression(rho['F, M(S)'])) +
   xlab("Generation") +
   xlim(-20,20)+
-  labs(fill = "Path:", colour  = "Path:" ) +
+  labs(fill = "Selection path:", colour  = "Selection path:" ) +
   theme_bw(base_size = 15) + 
   theme(legend.position = "none")
 ggsave("./Analysis/Figures/AlphaPartCor30Reps.pdf", width = 8, height = 4)
